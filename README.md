@@ -39,9 +39,9 @@ SUBCOMMANDS:
 Generate an example configuration file, run `wireguard-configure --example <filename>`
 
 ```
-Alexs-MacBook-Pro:wireguard-configure endeavor$ target/debug/wireguard-configure --example test.conf
+$ target/debug/wireguard-configure --example test.conf
 Configuration saved to file
-Alexs-MacBook-Pro:wireguard-configure endeavor$ cat test.conf
+$ cat test.conf
 ---
 router:
   name: "vpn-router"
@@ -70,7 +70,7 @@ clients:
     internal_address: 10.0.2.1
     allowed_ips:
       - 10.0.2.0/24
-    persistent_keepalive: 25Alexs-MacBook-Pro:wireguard-configure endeavor$ 
+    persistent_keepalive: 25
 ```
 
 We can add another client with the `add-client` subcommand.
@@ -176,7 +176,7 @@ PrivateKey = yDLYWiwOjO5OUv+TpGuLlAJWgI3u1+C3x4uG2YUcpH8=
 PublicKey = 560oUL8qMUbEFcQRys3tm/IbO8DPz96Oy6xrVlPuIjk=
 Endpoint = vpn.com:47654
 AllowedIPs = 10.0.0.0/24
-Alexs-MacBook-Pro:wireguard-configure endeavor$ target/debug/wireguard-configure test.conf client-config test-net --linux-script
+$ target/debug/wireguard-configure test.conf client-config test-net --linux-script
 cat > vpn.conf <<EOF
 [Interface]
 # name: test-net
