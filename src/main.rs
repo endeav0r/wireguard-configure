@@ -118,7 +118,7 @@ fn main () {
                     .short("o")
                     .long("osx-script")
                     .conflicts_with("linux-script")
-                    .help("Dump as bash script for Mac OS X")))
+                    .help("Dump as bash script for Mac OS X"))
             .get_matches();
 
     let filename = matches.value_of("config").unwrap();
@@ -285,7 +285,7 @@ fn main () {
                 client.internal_address(),
                 configuration.router().internal_address());
 
-            configuration.client()
+            configuration.clients()
                 .iter()
                 .filter(|client| client.name() != name)
                 .flat_map(|client| client.allowed_ips())
