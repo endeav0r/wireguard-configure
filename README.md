@@ -1,6 +1,8 @@
-# wireguard-config
+[![Build Status](https://travis-ci.org/endeav0r/wireguard-configuration.svg?branch=master)](https://travis-ci.org/endeav0r/wireguard-configuration)
 
-`wireguard-config` is a command-line utility to help manage wireguard configurations. It assumes a basic setup with one node acting as a, "Router," and several clients which connect and route traffic between the central router node. It allows you to generate and dump wireguard configurations, and bash scripts which also configure interfaces and routes.
+# wireguard-configure
+
+`wireguard-configure` is a command-line utility to help manage wireguard configurations. It assumes a basic setup with one node acting as a, "Router," and several clients which connect and route traffic between the central router node. It allows you to generate and dump wireguard configurations, and bash scripts which also configure interfaces and routes.
 
 You must have the commandline tool `wg` accessible through your path. This is used to automatically generate private/public wireguard keys.
 
@@ -34,12 +36,12 @@ SUBCOMMANDS:
 
 # Example usage:
 
-Generate an example configuration file, run `wireguard-config --example <filename>`
+Generate an example configuration file, run `wireguard-configure --example <filename>`
 
 ```
-Alexs-MacBook-Pro:wireguard-configure endeavor$ target/debug/wireguard-configure --example test.conf
+$ target/debug/wireguard-configure --example test.conf
 Configuration saved to file
-Alexs-MacBook-Pro:wireguard-configure endeavor$ cat test.conf
+$ cat test.conf
 ---
 router:
   name: "vpn-router"
@@ -68,7 +70,7 @@ clients:
     internal_address: 10.0.2.1
     allowed_ips:
       - 10.0.2.0/24
-    persistent_keepalive: 25Alexs-MacBook-Pro:wireguard-configure endeavor$ 
+    persistent_keepalive: 25
 ```
 
 We can add another client with the `add-client` subcommand.
@@ -174,7 +176,7 @@ PrivateKey = yDLYWiwOjO5OUv+TpGuLlAJWgI3u1+C3x4uG2YUcpH8=
 PublicKey = 560oUL8qMUbEFcQRys3tm/IbO8DPz96Oy6xrVlPuIjk=
 Endpoint = vpn.com:47654
 AllowedIPs = 10.0.0.0/24
-Alexs-MacBook-Pro:wireguard-configure endeavor$ target/debug/wireguard-configure test.conf client-config test-net --linux-script
+$ target/debug/wireguard-configure test.conf client-config test-net --linux-script
 cat > vpn.conf <<EOF
 [Interface]
 # name: test-net
