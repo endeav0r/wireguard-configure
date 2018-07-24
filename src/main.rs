@@ -113,12 +113,12 @@ fn main () {
                 .arg(Arg::with_name("linux-script")
                     .short("l")
                     .long("linux-script")
-                    .help("Dump as bash script for linux")))
+                    .help("Dump as bash script for linux"))
                 .arg(Arg::with_name("osx-script")
                     .short("o")
                     .long("osx-script")
                     .conflicts_with("linux-script")
-                    .help("Dump as bash script for Mac OS X"))
+                    .help("Dump as bash script for Mac OS X")))
             .get_matches();
 
     let filename = matches.value_of("config").unwrap();
@@ -235,15 +235,14 @@ fn main () {
             println!("ip link add dev wg0 type wireguard");
             println!("ip address add dev wg0 {}/32",
                 configuration.router().internal_address());
+            println!("wg setconf wg0 vpn.conf");
             println!("ip link set up dev wg0");
 
             configuration.clients()
                 .iter()
                 .flat_map(|client| client.allowed_ips())
                 .for_each(|allowed_ip|
-                    println!("route add {} {} dev wg0",
-                        allowed_ip.network(),
-                        allowed_ip.netmask()));
+                        println!("ip route add {} dev wg0", allowed_ip));
         }
     }
 
@@ -264,18 +263,20 @@ fn main () {
             println!("EOF");
             println!("ip link add dev wg0 type wireguard");
             println!("ip address add dev wg0 {}/32",
-                configuration.router().internal_address());
-            println!("ip wg setconf wg0 vpn.conf");
+                client.internal_address());
+            println!("wg setconf wg0 vpn.conf");
             println!("ip link set up dev wg0");
+
+            println!("ip route add {} dev wg0",
+                configuration.router().internal_address());
 
             configuration.clients()
                 .iter()
                 .filter(|client| client.name() != name)
                 .flat_map(|client| client.allowed_ips())
                 .for_each(|allowed_ip|
-                    println!("route add {} {} dev wg0",
-                        allowed_ip.network(),
-                        allowed_ip.netmask()));
+                    println!("ip route add {} dev wg0",
+                        allowed_ip));
         }
         else if matches.is_present("osx-script") {
             println!("EOF");
@@ -290,9 +291,15 @@ fn main () {
                 .filter(|client| client.name() != name)
                 .flat_map(|client| client.allowed_ips())
                 .for_each(|allowed_ip|
-                    println!("sudo router add -net {} -netmask {} -interface utun9",
-                        allowed_ip.network(),
-                        allowed_ip.netmask()));
+                    if allowed_ip.prefix_len() == 32 {
+                        println!("sudo route add {} -interface utun9",
+                            allowed_ip.addr());
+                    }
+                    else {
+                        println!("sudo route add -net {} -netmask {} -interface utun9",
+                            allowed_ip.network(),
+                            allowed_ip.netmask());
+                    });
         }
     }
 
