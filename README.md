@@ -1,6 +1,6 @@
 # wireguard-config
 
-`wireguard-config` is a command-line utility to help manage wireguard configurations. It assumes a basic setup with one node acting as a, "Router," and several clients which connect and route traffic between the central router node. It allows you to generate and dump wireguard configurations, and bash scripts which also configure interfaces and routes.
+`wireguard-configure` is a command-line utility to help manage wireguard configurations. It assumes a basic setup with one node acting as a, "Router," and several clients which connect and route traffic between the central router node. It allows you to generate and dump wireguard configurations, and bash scripts which also configure interfaces and routes.
 
 You must have the commandline tool `wg` accessible through your path. This is used to automatically generate private/public wireguard keys.
 
@@ -34,7 +34,7 @@ SUBCOMMANDS:
 
 # Example usage:
 
-Generate an example configuration file, run `wireguard-config --example <filename>`
+Generate an example configuration file, run `wireguard-configure --example <filename>`
 
 ```
 Alexs-MacBook-Pro:wireguard-configure endeavor$ target/debug/wireguard-configure --example test.conf
