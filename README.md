@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/endeav0r/wireguard-configuration.svg?branch=master)](https://travis-ci.org/endeav0r/wireguard-configuration)
+
 # wireguard-config
 
 `wireguard-configure` is a command-line utility to help manage wireguard configurations. It assumes a basic setup with one node acting as a, "Router," and several clients which connect and route traffic between the central router node. It allows you to generate and dump wireguard configurations, and bash scripts which also configure interfaces and routes.
