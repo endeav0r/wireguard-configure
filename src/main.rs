@@ -15,7 +15,7 @@ mod endpoint;
 use addrport::AddrPort;
 use clap::{Arg, App, SubCommand};
 use configuration::Configuration;
-use endpoint::EndPoint;
+use endpoint::{EndPoint, Router};
 use ipnet::Ipv4Net;
 use prettytable::{Table, cell::Cell, row::Row};
 use std::net::Ipv4Addr;
@@ -25,9 +25,10 @@ use std::process::exit;
 
 fn example_configuration() -> Configuration {
     let router =
-        EndPoint::new("vpn-router", "10.0.0.1".parse().unwrap())
-            .builder_external_address(Some(AddrPort::new("vpn.com", 47654)))
-            .builder_push_allowed_ips("10.0.0.0/24".parse().unwrap());
+        Router::new(
+            "vpn-router", "10.0.0.1".parse().unwrap(),
+            AddrPort::new("vpn.com", 47654)
+        );
 
     let mut configuration = Configuration::new(router);
 
@@ -145,11 +146,7 @@ fn main () {
         table.add_row(Row::new(vec![
             Cell::new(configuration.router().name()),
             Cell::new(&format!("{}", configuration.router().internal_address())),
-            Cell::new(
-                &configuration.router().allowed_ips().iter()
-                    .map(|ip| format!("{}", ip))
-                    .collect::<Vec<String>>()
-                    .join(","))
+            Cell::new("")
         ]));
 
         for client in configuration.clients() {
@@ -196,7 +193,7 @@ fn main () {
 
         let mut endpoint = EndPoint::new(name, internal_address);
 
-        if let Some(keepalive) = matches.value_of("persitent-keepalive") {
+        if let Some(keepalive) = matches.value_of("persistent-keepalive") {
             let keepalive: usize =
                 keepalive.parse().expect("Invalid persistent keepalive");
             endpoint.set_persistent_keepalive(Some(keepalive));
@@ -249,6 +246,7 @@ fn main () {
     else if let Some(matches) = matches.subcommand_matches("client-config") {
         let configuration = Configuration::open(Path::new(filename));
         let name = matches.value_of("name").unwrap();
+
         let client = configuration.client_by_name(name)
             .expect(&format!("Could not find client {}", name));
 
@@ -256,8 +254,7 @@ fn main () {
             println!("cat > vpn.conf <<EOF");
         }
 
-        println!("{}", client.interface());
-        println!("{}", configuration.router().peer());
+        println!("{}", configuration.client_config(name).unwrap());
 
         if matches.is_present("linux-script") {
             println!("EOF");
@@ -270,10 +267,8 @@ fn main () {
             println!("ip route add {} dev wg0",
                 configuration.router().internal_address());
 
-            configuration.clients()
+            configuration.all_allowed_ips()
                 .iter()
-                .filter(|client| client.name() != name)
-                .flat_map(|client| client.allowed_ips())
                 .for_each(|allowed_ip|
                     println!("ip route add {} dev wg0",
                         allowed_ip));
@@ -286,19 +281,16 @@ fn main () {
                 client.internal_address(),
                 configuration.router().internal_address());
 
-            configuration.clients()
+            configuration.all_allowed_ips()
                 .iter()
-                .filter(|client| client.name() != name)
-                .flat_map(|client| client.allowed_ips())
                 .for_each(|allowed_ip|
                     if allowed_ip.prefix_len() == 32 {
                         println!("sudo route add {} -interface utun9",
                             allowed_ip.addr());
                     }
                     else {
-                        println!("sudo route add -net {} -netmask {} -interface utun9",
-                            allowed_ip.network(),
-                            allowed_ip.netmask());
+                        println!("sudo route add -net {} -interface utun9",
+                            allowed_ip);
                     });
         }
     }

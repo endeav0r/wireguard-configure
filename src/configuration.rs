@@ -1,12 +1,14 @@
-use endpoint::EndPoint;
+use endpoint::{EndPoint, Router};
 use serde_yaml;
 use std::fs::File;
 use std::io::{Read, Write};
+use ipnet::Ipv4Net;
 use std::path::Path;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Configuration {
-    router: EndPoint,
+    master_subnet: Option<Ipv4Net>,
+    router: Router,
     clients: Vec<EndPoint>
 }
 
@@ -40,8 +42,9 @@ impl Configuration {
             .expect("Failed to write configuration file");
     }
 
-    pub fn new(router: EndPoint) -> Configuration {
+    pub fn new(router: Router) -> Configuration {
         Configuration {
+            master_subnet: None,
             router: router,
             clients: Vec::new()
         }
@@ -49,6 +52,10 @@ impl Configuration {
 
     pub fn push_client(&mut self, client: EndPoint) {
         self.clients.push(client);
+    }
+
+    pub fn set_master_subnet(&mut self, master_subnet: Option<Ipv4Net>) {
+        self.master_subnet = master_subnet;
     }
 
     pub fn remove_client_by_name(&mut self, name: &str) -> bool {
@@ -61,12 +68,34 @@ impl Configuration {
         false
     }
 
-    pub fn router(&self) -> &EndPoint { &self.router }
+    pub fn master_subnet(&self) -> Option<&Ipv4Net> {
+        self.master_subnet.as_ref() 
+    }
+    pub fn router(&self) -> &Router { &self.router }
     pub fn clients(&self) -> &[EndPoint] { &self.clients }
 
     pub fn client_by_name(&self, name: &str) -> Option<&EndPoint> {
         self.clients
             .iter()
             .find(|client| client.name() == name)
+    }
+
+    pub fn all_allowed_ips(&self) -> Vec<Ipv4Net> {
+        match self.master_subnet() {
+            Some(master_subnet) => vec![master_subnet.clone()],
+            None =>
+                self.clients()
+                    .iter()
+                    .flat_map(|client| client.allowed_ips())
+                    .collect::<Vec<Ipv4Net>>()
+        }
+    }
+
+    pub fn client_config(&self, name: &str) -> Option<String> {
+        let client = self.client_by_name(name)?;
+
+        Some(format!("{}\n\n{}",
+            client.interface(),
+            self.router.peer(client, &self.all_allowed_ips())))
     }
 }
