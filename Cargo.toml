@@ -1,6 +1,6 @@
 [package]
 name = "wireguard-configure"
-version = "0.1.0"
+version = "0.1.1"
 authors = [ "Alex Eubanks <endeavor@rainbowsandpwnies.com>" ]
 repository = "https://github.com/endeav0r/wireguard-configure"
 description = "Command-line configuration manager for wireguard"
