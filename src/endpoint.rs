@@ -72,12 +72,10 @@ impl Router {
     }
 
     pub fn set_external_address(&mut self, external_address: AddrPort) {
-
         self.external_address = external_address;
     }
 
     pub fn set_internal_address(&mut self, internal_address: Ipv4Addr) {
-
         self.internal_address = internal_address;
     }
 
@@ -188,6 +186,14 @@ impl EndPoint {
 
     pub fn set_persistent_keepalive(&mut self, keepalive: Option<usize>) {
         self.persistent_keepalive = keepalive;
+    }
+
+    pub fn set_private_key(&mut self, private_key: Option<String>) {
+        self.private_key = private_key;
+    }
+
+    pub fn set_public_key(&mut self, public_key: String) {
+        self.public_key = public_key;
     }
 
     pub fn name(&self) -> &str { &self.name }

@@ -74,6 +74,12 @@ fn main () {
                     .value_name("NAME")
                     .required(true)
                     .help("Name for the new client"))
+                .arg(Arg::with_name("public-key")
+                    .short("k")
+                    .long("public-key")
+                    .value_name("PUBLIC_KEY")
+                    .help("Use the given public key, and don't generate keys \
+                           automatically"))
                 .arg(Arg::with_name("internal-address")
                     .short("i")
                     .long("internal-address")
@@ -82,9 +88,9 @@ fn main () {
                     .help("Internal address for the new client"))
                 .arg(Arg::with_name("persistent-keepalive")
                     .short("p")
-                    .long("persitent-keepalive")
-                    .value_name("PERSITENT_KEEPALIVE")
-                    .help("Optional persitent keepalive for the client"))
+                    .long("persistent-keepalive")
+                    .value_name("PERSISTENT_KEEPALIVE")
+                    .help("Optional persistent keepalive for the client"))
                 .arg(Arg::with_name("allowed-ips")
                     .short("a")
                     .long("allowed-ips")
@@ -192,6 +198,11 @@ fn main () {
             .expect("Invalid internal address");
 
         let mut endpoint = EndPoint::new(name, internal_address);
+
+        if let Some(public_key) = matches.value_of("public-key") {
+            endpoint.set_private_key(None);
+            endpoint.set_public_key(public_key.to_string());
+        }
 
         if let Some(keepalive) = matches.value_of("persistent-keepalive") {
             let keepalive: usize =
